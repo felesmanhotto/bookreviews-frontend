@@ -143,7 +143,13 @@ export default function ReviewCard({ review: initial }: { review: Review }) {
           </p>
 
           {/* footer: like no canto inferior direito */}
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex items-center justify-between">
+            <a
+              href={`/reviews/${review.id}`}
+              className="text-xs underline text-slate-300 hover:text-white"
+            >
+              Comments
+            </a>
             <LikeButton reviewId={review.id} />
           </div>
         </div>
