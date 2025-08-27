@@ -4,10 +4,7 @@ import { apiFetch } from "@/lib/api";
 import ReviewCard from "@/components/ReviewCard";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
-type User = { id: number; name: string; bio?: string|null; created_at: string };
-type Book = { id: string; title: string; authors?: string|null; cover_url?: string|null };
-type Review = { id: number; content: string; rating: number; user_id: number; book: Book };
+import { User, Review, Book } from "@/types";
 
 export default function UserProfilePage() {
   const params = useParams<{ id: string }>();

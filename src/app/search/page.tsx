@@ -3,70 +3,66 @@
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
 import { BookCard } from "@/components/BookCard";
-import { useState } from "react";
-
-type Book = { id: string; title: string; authors?: string|null; cover_url?: string|null };
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Book } from "@/types";
+import CreateReviewModal from "@/components/CreateReviewModal";
 
 export default function SearchPage() {
   const { token } = useAuth();
   const [q, setQ] = useState("");
   const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onSearch(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    try {
-      const res = await apiFetch<Book[]>(`/books/search?q=${encodeURIComponent(q)}`);
-      setBooks(res);
-    } catch (e:any) {
-      setError(e.message);
-    }
-  }
+  const [selected, setSelected] = useState<Book | null>(null);
 
-  async function createReview(b: Book) {
-    if (!token) { alert("Login required"); return; }
-    const content = prompt(`Your review for "${b.title}":`) || "";
-    const ratingStr = prompt("Rating (1..5):") || "5";
-    const rating = Math.min(5, Math.max(1, parseInt(ratingStr, 10) || 5));
-    try {
-      await apiFetch(`/reviews`, {
-        method: "POST",
-        body: JSON.stringify({ book_id: b.id, content, rating }),
-      }, token);
-      alert("Review created!");
-    } catch (e:any) {
-      alert(e.message || "Failed to create review");
-    }
-  }
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (q.trim().length < 2) { setBooks([]); setError(null); return; }
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await apiFetch<Book[]>(`/books/search?q=${encodeURIComponent(q)}`);
+        setBooks(data);
+      } catch (e:any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 400); // 400ms debounce
+    return () => { if (timer.current) clearTimeout(timer.current); }; 
+  }, [q]);
 
   return (
     <div className="space-y-4">
-      <form onSubmit={onSearch} className="flex gap-2">
+      <form onSubmit={(e)=>e.preventDefault()} className="flex gap-2">
         <input
-          className="flex-1 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2
-                    text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring
-                    focus:ring-sky-500/30"
-          placeholder="Search books..."
+          className="flex-1 border rounded p-2 bg-slate-950 border-slate-700"
+          placeholder="Search by title or author…"
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e)=>setQ(e.target.value)}
         />
-        <button
-          className="rounded-lg bg-sky-700 px-5 py-2 font-medium text-white
-                    hover:bg-sky-600 active:bg-sky-700/90 transition"
-        >
-          Search
-        </button>
       </form>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div
-        className="
-          grid gap-4
-          [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]
-        ">
-        {books.map(b => <BookCard key={b.id} book={b} onSelect={createReview} />)}
+
+      {loading && <p className="text-sm text-slate-400">Searching…</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {books.map((b) => (
+          <BookCard key={b.id} book={b} onReview={() => setSelected(b)} />
+        ))}
       </div>
 
+      <CreateReviewModal
+        book={selected as any}
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        onCreated={() => {
+          // opcional: toast/redirect
+        }}
+      />
     </div>
   );
 }

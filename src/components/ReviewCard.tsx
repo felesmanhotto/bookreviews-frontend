@@ -6,9 +6,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
 import LikeButton from "./LikeButton";
-
-type Book = { id: string; title: string; authors?: string | null; cover_url?: string | null };
-type Review = { id: number; content: string; rating: number; user_id: number; book: Book };
+import { Book, Review } from "@/types";
 
 function Star({ filled, size }: { filled: boolean; size: number }) {
   return (
