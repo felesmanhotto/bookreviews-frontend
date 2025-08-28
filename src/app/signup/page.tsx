@@ -26,8 +26,8 @@ export default function SignupPage() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="max-w-sm mx-auto bg-sky-950 p-6 rounded-xl shadow-sm border space-y-3">
-      <h1 className="font-semibold text-lg">Create account</h1>
+    <form onSubmit={onSubmit} className="max-w-sm mx-auto bg-sky-950 p-6 rounded-xl shadow-sm border space-y-3 text-black">
+      <h1 className="font-semibold text-lg text-white">Create account</h1>
       {err && <p className="text-sm text-red-600">{err}</p>}
       <input className="w-full border rounded p-2" placeholder="Name" value={name} onChange={e=>setName(e.target.value)} />
       <input className="w-full border rounded p-2" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
