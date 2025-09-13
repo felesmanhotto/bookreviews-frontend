@@ -2,14 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { apiFetch } from "@/lib/api";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  bio?: string | null;
-  created_at: string;
-};
+import { User } from "@/types";
 
 type AuthContextType = {
   user: User | null;
