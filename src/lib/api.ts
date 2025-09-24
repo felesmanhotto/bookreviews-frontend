@@ -1,3 +1,5 @@
+// esse helper é feito para JSON. usar fetch normal em auth para passar FormData ou URLSearchParams
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
 
 export async function apiFetch(
@@ -20,7 +22,7 @@ export async function apiFetch<T = unknown>(
   const headers = new Headers(options.headers);
   // só seta JSON se houver body
   if (options.body && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
+    headers.set('Content-Type', 'application/json');  
   }
   if (token) headers.set('Authorization', `Bearer ${token}`);
 

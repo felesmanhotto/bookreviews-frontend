@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [fetchMe]);
 
+  // sincronizar entre abas
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key !== "token") return;
@@ -66,14 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }).finally(() => setLoading(false));
       }
     };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("storage", onStorage);  // o navegador passa o evento como parametro
+    return () => window.removeEventListener("storage", onStorage);  // event listeners para mexer com storage!! 
   }, [fetchMe]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
-    const body = new URLSearchParams({ username: email, password });
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/login`, { method: "POST", body });
+    const body = new URLSearchParams({ username: email, password });  // fastAPI requestform espera form data
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/login`, { method: "POST", body }); 
     if (!res.ok) {
       setLoading(false);
       throw new Error("Invalid credentials");
